@@ -415,7 +415,7 @@ body.is-paused .eq i{animation-play-state:paused}
         <button class="ibtn sm" data-act="lib-plus" title="Tạo hoặc thêm" id="slPlus"></button>
       </div>
       <div class="sl-chips"><button class="chip" data-act="add-music" id="chipAdd"></button><button class="chip" data-act="new-pl" id="chipPl"></button></div>
-      <div class="sl-list" id="libList"></div><div class="muted" style="font-size:11px;padding:0 16px 10px">Phiên bản 1.4</div>
+      <div class="sl-list" id="libList"></div><div class="muted" style="font-size:11px;padding:0 16px 10px">Phiên bản 1.5</div>
     </div>
   </aside>
   <main id="main"><div id="view"></div></main>
@@ -705,6 +705,13 @@ async function deleteTrack(id){
   S.tracks.delete(id);S.order=S.order.filter(x=>x!==id);S.liked.delete(id);S.playlists.forEach(p=>p.ids=p.ids.filter(x=>x!==id));
   await dbDel('tracks',id);saveMeta();renderAll();toast('Đã xóa khỏi thư viện');
 }
+async function clearLibrary(){
+  audio.pause();audio.removeAttribute('src');try{audio.load()}catch(e){}
+  S.tracks.forEach(t=>{if(t.url)URL.revokeObjectURL(t.url);if(t.coverUrl)URL.revokeObjectURL(t.coverUrl);});
+  S.tracks.clear();S.order=[];S.liked.clear();S.playlists.forEach(p=>p.ids=[]);S.queue=[];S.baseList=[];S.qi=-1;S.context={key:'',label:''};
+  await idb('tracks','readwrite',st=>st.clear());saveMetaNow();
+  S.stack=[];S.view={name:'home'};renderAll();toast('Đã xóa tất cả bài hát');
+}
 function toggleLike(id){if(!id)return;if(S.liked.has(id)){S.liked.delete(id);toast('Đã xóa khỏi Bài hát đã thích')}else{S.liked.add(id);toast('Đã thêm vào Bài hát đã thích')}saveMeta();renderSidebar();refreshView();renderPlayer();renderRight();}
 
 /* ================= lists & keys ================= */
@@ -831,7 +838,7 @@ function renderList(key){
   if(key.startsWith('pl:')&&!plById(key.slice(3))){go({name:'home'});return;}
   const playing=S.context.key===key&&!audio.paused&&cur();
   let extra='';
-  if(key==='all')extra=`<span class="grow"></span><button class="pill" data-act="sort">${ic('sort',16)}${{added:'Mới thêm',title:'Tên bài',artist:'Nghệ sĩ'}[S.sort]}</button><button class="ibtn" data-act="add-music" aria-label="Thêm nhạc">${ic('upload',24)}</button>`;
+  if(key==='all')extra=`<span class="grow"></span><button class="pill" data-act="sort">${ic('sort',16)}${{added:'Mới thêm',title:'Tên bài',artist:'Nghệ sĩ'}[S.sort]}</button><button class="ibtn" data-act="add-music" aria-label="Thêm nhạc">${ic('upload',24)}</button><button class="ibtn" data-act="all-more" aria-label="Tùy chọn">${ic('more',24)}</button>`;
   else if(key.startsWith('pl:'))extra=`<button class="ibtn" data-act="pl-more" aria-label="Tùy chọn">${ic('more',28)}</button>`;
   let body='';
   if(ids.length)body=rowsHTML(ids);
@@ -872,7 +879,7 @@ function renderLibrary(){
   const ar=artists();
   view.innerHTML=`<div class="vwrap plain"><div class="topbar" style="justify-content:space-between"><h2>Thư viện</h2><button class="ibtn" data-act="lib-plus" aria-label="Thêm">${ic('plus',26)}</button></div>
   <div class="sl-chips" style="padding:0 16px 10px"><button class="chip" data-act="add-music">${ic('upload',14)}Thêm nhạc</button><button class="chip" data-act="new-pl">${ic('plus',14)}Danh sách phát</button></div>
-  <div style="padding:0 8px">${libItems().map(libRowHTML).join('')}${ar.map(a=>libRowHTML({key:'ar:'+a,title:a,sub:'Nghệ sĩ'})).join('')}</div><p class="muted" style="text-align:center;font-size:12px;padding:20px 0 0">Sóng · phiên bản 1.4</p></div>`;
+  <div style="padding:0 8px">${libItems().map(libRowHTML).join('')}${ar.map(a=>libRowHTML({key:'ar:'+a,title:a,sub:'Nghệ sĩ'})).join('')}</div><p class="muted" style="text-align:center;font-size:12px;padding:20px 0 0">Sóng · phiên bản 1.5</p></div>`;
 }
 function renderQueueView(){view.innerHTML=`<div class="vwrap plain">${topbar('Hàng chờ')}<div id="qv">${queueHTML()}</div></div>`;}
 function qItem(t,qi,now){return `<div class="qi ${now?'now':''}" data-act="jump" data-qi="${qi}">${coverHTML(t,'cov-q')}<div class="tt"><div class="t1">${esc(t.title)}</div><div class="t2">${esc(t.artist)}</div></div>${now?'':`<button class="ibtn sm" data-act="q-remove" data-qi="${qi}" aria-label="Bỏ khỏi hàng chờ">${ic('x',16)}</button>`}</div>`;}
@@ -1233,6 +1240,7 @@ document.addEventListener('click',e=>{
     case 'new-pl':newPlaylist();break;
     case 'lib-plus':openMenu([{icon:'upload',label:'Thêm nhạc từ máy',act:pickFiles},{icon:'addList',label:'Tạo danh sách phát',act:()=>newPlaylist()}],el);break;
     case 'pl-more':plMenu(S.view.id,el);break;
+    case 'all-more':openMenu([{icon:'upload',label:'Thêm nhạc từ máy',act:pickFiles},{icon:'trash',label:'Xóa tất cả bài hát',danger:1,act:async()=>{if(!S.order.length){toast('Thư viện đang trống');return;}if(await confirmBox('Xóa tất cả bài hát?',`Toàn bộ ${S.order.length} bài sẽ bị xóa khỏi app, kèm lượt thích và lời đã lưu. Các danh sách phát sẽ trống. File gốc trong máy không bị ảnh hưởng.`,'Xóa tất cả'))clearLibrary();}}],el);break;
     case 'pl-add':addToPl(S.view.id,el.dataset.id);break;
     case 'sort':openMenu([['added','Mới thêm gần đây'],['title','Tên bài (A–Z)'],['artist','Nghệ sĩ (A–Z)']].map(([k,l])=>({icon:S.sort===k?'check':'sort',label:l,act:()=>{S.sort=k;saveMeta();renderView();}})),el);break;
     case 'jump':S.qi=+el.dataset.qi;loadCurrent(true);break;
