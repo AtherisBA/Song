@@ -232,6 +232,28 @@ body.is-paused .eq i{animation-play-state:paused}
 .rp-box .qi{margin:0 4px}
 .rp-empty{flex:1;display:flex;flex-direction:column;align-items:center;justify-content:center;color:var(--sub);text-align:center;padding:24px;gap:10px}
 
+/* lyrics */
+.lyr{padding:8px 24px 60px}
+.vwrap.lyrv .topbar{background:inherit}
+.lyr-empty>.ic,.empty>.ic{margin:0 auto}
+.lyr-top{display:flex;align-items:center;gap:12px;padding:4px 0 22px}
+.lyr-top .cov{width:48px;height:48px}
+.ll{font-size:26px;font-weight:800;line-height:1.3;margin:0 0 18px;color:rgba(255,255,255,.42);transition:color .25s;cursor:pointer;letter-spacing:-.01em}
+.ll.past{color:rgba(255,255,255,.72)}
+.ll.on{color:#fff}
+.ll.plain{color:#fff;cursor:default;font-size:20px;font-weight:600;margin-bottom:10px}
+@media (hover:hover){.ll:not(.plain):hover{color:#fff}}
+@media (min-width:900px){.ll{font-size:32px;margin-bottom:22px}.ll.plain{font-size:22px}.lyr{padding:8px 40px 80px}}
+.lyr-foot{display:flex;flex-wrap:wrap;gap:10px;align-items:center;margin-top:28px;font-size:13px;color:rgba(255,255,255,.7)}
+.lyr-empty{text-align:center;padding:48px 8px;color:rgba(255,255,255,.8)}
+.lyr-empty h2{font-size:22px;font-weight:800;margin:14px 0 8px;color:#fff}
+.lyr-empty p{margin:0 auto 20px;max-width:420px;line-height:1.55}
+.lyr-empty .btns{display:flex;flex-wrap:wrap;gap:10px;justify-content:center}
+.lyr-empty .pill,.lyr-foot .pill{border-color:rgba(255,255,255,.6)}
+#modalBox textarea{width:100%;height:42vh;min-height:180px;background:#3e3e3e;border:1px solid transparent;border-radius:6px;padding:12px;color:#fff;font:inherit;font-size:15px;line-height:1.5;outline:none;resize:vertical}
+#modalBox textarea:focus{border-color:#7a7a7a;background:#333}
+#modalBox .hint{font-size:12px;color:var(--sub);margin:8px 0 0;line-height:1.5}
+
 /* mini + tabbar + sheet (mobile) */
 #mini,#tabbar,#sheet{display:none}
 
@@ -356,6 +378,16 @@ body.is-paused .eq i{animation-play-state:paused}
   .sh-foot .ibtn{color:#fff}
   .sh-queue{position:absolute;inset:0;background:#121212;display:flex;flex-direction:column;transform:translateY(100%);transition:transform .3s;z-index:2}
   .sh-queue.open{transform:none}
+  .sh-lyr{position:absolute;inset:0;display:flex;flex-direction:column;transform:translateY(100%);transition:transform .3s;z-index:2;background:var(--lc,#333)}
+  .sh-lyr.open{transform:none}
+  .sh-lyr .qhead{display:flex;align-items:center;gap:8px;padding:calc(var(--safe-t) + 10px) 12px 6px;font-weight:800;font-size:17px}
+  .sh-lyr .qhead .tt{text-align:center}
+  .sh-lyr .qhead .t2{color:rgba(255,255,255,.75)}
+  .sh-lyr .lscroll{flex:1;overflow-y:auto;-webkit-overflow-scrolling:touch}
+  .sh-lyr .lyr-top{display:none}
+  .sh-lyr .lbar{display:flex;align-items:center;gap:12px;padding:8px 20px calc(var(--safe-b) + 12px)}
+  .sh-lyr .lbar .range{--thumb:1;height:26px}
+  .sh-lyr .lbar .playbtn{width:52px;height:52px;flex:none}
   .sh-queue .qhead{display:flex;align-items:center;gap:8px;padding:calc(var(--safe-t) + 10px) 12px 6px;font-weight:800;font-size:17px}
   .sh-queue .qlist{flex:1;overflow-y:auto;padding-bottom:calc(var(--safe-b) + 20px)}
 
@@ -383,7 +415,7 @@ body.is-paused .eq i{animation-play-state:paused}
         <button class="ibtn sm" data-act="lib-plus" title="Tạo hoặc thêm" id="slPlus"></button>
       </div>
       <div class="sl-chips"><button class="chip" data-act="add-music" id="chipAdd"></button><button class="chip" data-act="new-pl" id="chipPl"></button></div>
-      <div class="sl-list" id="libList"></div><div class="muted" style="font-size:11px;padding:0 16px 10px">Phiên bản 1.3</div>
+      <div class="sl-list" id="libList"></div><div class="muted" style="font-size:11px;padding:0 16px 10px">Phiên bản 1.4</div>
     </div>
   </aside>
   <main id="main"><div id="view"></div></main>
@@ -401,6 +433,7 @@ body.is-paused .eq i{animation-play-state:paused}
       <div class="pb-prog"><span class="tm tcur">0:00</span><input type="range" class="range seek" min="0" max="1000" value="0" aria-label="Tua"><span class="tm tdur">0:00</span></div>
     </div>
     <div class="pb-right">
+      <button class="ibtn sm" data-act="lyrics" title="Lời bài hát" id="pbLyr"></button>
       <button class="ibtn sm" data-act="queue" title="Hàng chờ" id="pbQueue"></button>
       <button class="ibtn sm" data-act="mute" title="Âm lượng" id="pbMute"></button>
       <input type="range" class="range vol" id="pbVol" min="0" max="100" value="100" aria-label="Âm lượng">
@@ -437,8 +470,13 @@ body.is-paused .eq i{animation-play-state:paused}
         <button class="ibtn" data-act="next"></button>
         <button class="ibtn" data-act="repeat"></button>
       </div>
-      <div class="sh-foot"><span></span><button class="ibtn" data-act="sheet-queue" id="shQBtn"></button></div>
+      <div class="sh-foot"><button class="ibtn" data-act="sheet-lyrics" id="shLBtn" aria-label="Lời bài hát"></button><button class="ibtn" data-act="sheet-queue" id="shQBtn"></button></div>
     </div>
+  </div>
+  <div class="sh-lyr" id="shLyr">
+    <div class="qhead"><button class="ibtn" data-act="sheet-lyrics-close" id="shLClose"></button><div class="tt"><div class="t1" id="shLTitle"></div><div class="t2" id="shLArtist"></div></div><button class="ibtn" data-act="lyr-menu" id="shLMore"></button></div>
+    <div class="lscroll lyr-scroller"><div class="lyr-host"></div></div>
+    <div class="lbar"><input type="range" class="range seek" min="0" max="1000" value="0" aria-label="Tua"><button class="playbtn" data-act="toggle"></button></div>
   </div>
   <div class="sh-queue" id="shQueue">
     <div class="qhead"><button class="ibtn" data-act="sheet-queue-close" id="shQClose"></button>Hàng chờ</div>
@@ -450,6 +488,7 @@ body.is-paused .eq i{animation-play-state:paused}
 <div id="modal"><div class="mbg" id="modalBg"></div><div id="modalBox"></div></div>
 <div id="toast"></div>
 <div id="drop"><div>Thả file nhạc vào đây</div></div>
+<input type="file" id="lrcFile" class="hidden-file">
 <input type="file" id="file" class="hidden-file" accept="audio/*,.mp3,.m4a,.aac,.wav,.flac,.ogg,.opus" multiple>
 <audio id="audio" preload="auto"></audio>
 
@@ -489,7 +528,8 @@ const ICONS={
   sort:['s','M4 7h16M7 12h10M10 17h4'],
   wave:['f','M5 10h2v4H5zM9 7h2v10H9zM13 4h2v16h-2zM17 8h2v8h-2z'],
   check:['s','M5 12l5 5 9-10'],
-  minus:['s','M5 12h14']
+  minus:['s','M5 12h14'],
+  mic:['s','M12 3a3 3 0 0 0-3 3v6a3 3 0 0 0 6 0V6a3 3 0 0 0-3-3zM5 11a7 7 0 0 0 14 0M12 18v3']
 };
 function ic(n,s=24){const d=ICONS[n];const f=d[0]==='f';return `<svg class="ic" width="${s}" height="${s}" viewBox="0 0 24 24" ${f?'fill="currentColor"':'fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"'} aria-hidden="true"><path d="${d[1]}"/></svg>`;}
 
@@ -531,7 +571,7 @@ const dbPut=(store,val,key)=>idb(store,'readwrite',s=>key===undefined?s.put(val)
 const dbDel=(store,key)=>idb(store,'readwrite',s=>s.delete(key));
 const dbAll=store=>idb(store,'readonly',s=>s.getAll());
 const dbGet=(store,key)=>idb(store,'readonly',s=>s.get(key));
-function toRec(t){const r={};for(const k in t){if(k==='url'||k==='coverUrl'||k==='_art')continue;r[k]=t[k];}return r;}
+function toRec(t){const r={};for(const k in t){if(k==='url'||k==='coverUrl'||k[0]==='_')continue;r[k]=t[k];}return r;}
 let metaTimer;
 function saveMeta(){clearTimeout(metaTimer);metaTimer=setTimeout(saveMetaNow,400);}
 function saveMetaNow(){const c=cur();const m={liked:[...S.liked],playlists:S.playlists,shuffle:S.shuffle,repeat:S.repeat,volume:S.volume,muted:S.muted,sort:S.sort,showRight:S.showRight,lastId:c?c.id:null,lastTime:audio.currentTime||0,context:S.context};if(db)dbPut('meta',m,'state');else{try{localStorage.setItem('song-meta',JSON.stringify(m))}catch(e){}}}
@@ -548,6 +588,17 @@ function decStr(bytes,enc){
   try{return clean(new TextDecoder(label).decode(bytes))}catch(e){return ''}
 }
 function clean(s){return s.split('\u0000').filter(Boolean)[0]?.replace(/^﻿/,'').trim()||'';}
+function decLyr(d){
+  try{
+    const enc=d[0];let p=4;
+    if(enc===1||enc===2){while(p+1<d.length&&!(d[p]===0&&d[p+1]===0))p+=2;p+=2;}else{while(p<d.length&&d[p]!==0)p++;p++;}
+    let b=d.subarray(p),label='utf-8';
+    if(enc===0){try{return new TextDecoder('utf-8',{fatal:true}).decode(b).replace(/\u0000/g,'').trim()}catch(e){label='windows-1252'}}
+    else if(enc===1){if(b[0]===0xFE&&b[1]===0xFF){label='utf-16be';b=b.subarray(2)}else{label='utf-16le';if(b[0]===0xFF&&b[1]===0xFE)b=b.subarray(2)}}
+    else if(enc===2)label='utf-16be';
+    return new TextDecoder(label).decode(b).replace(/\u0000/g,'').trim();
+  }catch(e){return ''}
+}
 function decPic(d,v22){
   const enc=d[0];let p=1,mime='';
   if(v22){mime=String.fromCharCode(d[1],d[2],d[3]).toLowerCase();p=4;}
@@ -584,6 +635,7 @@ async function readTags(file){
       else if(id==='TPE1'||id==='TP1')out.artist=decStr(d.subarray(1),d[0]);
       else if(id==='TALB'||id==='TAL')out.album=decStr(d.subarray(1),d[0]);
       else if((id==='APIC'||id==='PIC')&&!out.cover)out.cover=decPic(d,ver===2);
+      else if((id==='USLT'||id==='ULT')&&!out.lyrics)out.lyrics=decLyr(d);
       p=en;
     }
   }catch(e){}
@@ -633,7 +685,7 @@ async function importFiles(list){
     const m=base.match(/^(.+?)\s+-\s+(.+)$/);if(m){fa=m[1].trim();ft=m[2].trim();}
     let dur=/\.mp3$/i.test(f.name)||f.type==='audio/mpeg'?await mp3Duration(blob,tags.tagEnd):0;
     if(!dur)dur=await mediaDuration(blob);
-    const rec={id:uid(),name:f.name,size:f.size,blob,title:tags.title||ft,artist:tags.artist||fa||'Nghệ sĩ không xác định',album:tags.album||'',cover:tags.cover||null,color:await avgColor(tags.cover),duration:dur,added:Date.now()+i};
+    const rec={id:uid(),name:f.name,size:f.size,blob,title:tags.title||ft,artist:tags.artist||fa||'Nghệ sĩ không xác định',album:tags.album||'',cover:tags.cover||null,lyrics:tags.lyrics||'',color:await avgColor(tags.cover),duration:dur,added:Date.now()+i};
     if(!(await dbPut('tracks',toRec(rec))))failed++;
     addMem(rec);added++;
     if(i%5===4)refreshView();
@@ -711,7 +763,7 @@ function renderStatic(){
   $$('[data-act="prev"]').forEach(b=>b.innerHTML=ic('prev',20));
   $$('[data-act="next"]').forEach(b=>b.innerHTML=ic('next',20));
   $$('#sheet [data-act="prev"],#sheet [data-act="next"]').forEach(b=>b.innerHTML=ic(b.dataset.act,32));
-  $('#pbQueue').innerHTML=ic('queue',18);
+  $('#pbQueue').innerHTML=ic('queue',18);$('#pbLyr').innerHTML=ic('mic',18);$('#shLBtn').innerHTML=ic('mic',22);$('#shLClose').innerHTML=ic('chevDown',26);$('#shLMore').innerHTML=ic('more',22);
   $('#shClose').innerHTML=ic('chevDown',26);$('#shMore').innerHTML=ic('more',22);$('#shQBtn').innerHTML=ic('queue',22);$('#shQClose').innerHTML=ic('chevDown',26);
 }
 function renderTabs(){
@@ -737,6 +789,7 @@ function renderView(){
   else if(n==='search')renderSearch();
   else if(n==='library')renderLibrary();
   else if(n==='queue')renderQueueView();
+  else if(n==='lyrics')renderLyricsView();
   else renderList(viewKey());
   markPlaying();updatePlayIcons();
 }
@@ -819,7 +872,7 @@ function renderLibrary(){
   const ar=artists();
   view.innerHTML=`<div class="vwrap plain"><div class="topbar" style="justify-content:space-between"><h2>Thư viện</h2><button class="ibtn" data-act="lib-plus" aria-label="Thêm">${ic('plus',26)}</button></div>
   <div class="sl-chips" style="padding:0 16px 10px"><button class="chip" data-act="add-music">${ic('upload',14)}Thêm nhạc</button><button class="chip" data-act="new-pl">${ic('plus',14)}Danh sách phát</button></div>
-  <div style="padding:0 8px">${libItems().map(libRowHTML).join('')}${ar.map(a=>libRowHTML({key:'ar:'+a,title:a,sub:'Nghệ sĩ'})).join('')}</div><p class="muted" style="text-align:center;font-size:12px;padding:20px 0 0">Sóng · phiên bản 1.3</p></div>`;
+  <div style="padding:0 8px">${libItems().map(libRowHTML).join('')}${ar.map(a=>libRowHTML({key:'ar:'+a,title:a,sub:'Nghệ sĩ'})).join('')}</div><p class="muted" style="text-align:center;font-size:12px;padding:20px 0 0">Sóng · phiên bản 1.4</p></div>`;
 }
 function renderQueueView(){view.innerHTML=`<div class="vwrap plain">${topbar('Hàng chờ')}<div id="qv">${queueHTML()}</div></div>`;}
 function qItem(t,qi,now){return `<div class="qi ${now?'now':''}" data-act="jump" data-qi="${qi}">${coverHTML(t,'cov-q')}<div class="tt"><div class="t1">${esc(t.title)}</div><div class="t2">${esc(t.artist)}</div></div>${now?'':`<button class="ibtn sm" data-act="q-remove" data-qi="${qi}" aria-label="Bỏ khỏi hàng chờ">${ic('x',16)}</button>`}</div>`;}
@@ -868,6 +921,7 @@ function updateModes(){
   $$('[data-act="shuffle"]').forEach(b=>{b.classList.toggle('on',S.shuffle);const sz=b.closest('#sheet')?24:b.closest('.actions')?26:18;b.innerHTML=ic('shuffle',sz);});
   $$('[data-act="repeat"]').forEach(b=>{b.classList.toggle('on',S.repeat>0);b.classList.toggle('rep1',S.repeat===2);b.innerHTML=ic('repeat',b.closest('#sheet')?24:18);});
   const v=S.muted?0:S.volume;$('#pbMute').innerHTML=ic(v===0?'mute':'volume',18);const vr=$('#pbVol');vr.value=Math.round(v*100);vr.style.setProperty('--p',(v*100)+'%');
+  $('#pbLyr').classList.toggle('on',S.view.name==='lyrics');
   $('#pbQueue').classList.toggle('on',(S.showRight&&S.rpMode==='queue'&&isWide())||S.view.name==='queue');
 }
 let seeking=null;
@@ -907,7 +961,7 @@ function loadCurrent(play){
   if(play){const p=audio.play();if(p&&p.catch)p.catch(err=>{if(err&&err.name==='NotAllowedError')updatePlayIcons();else if(err&&err.name!=='AbortError')toast('Không phát được bài này');});}
   onTrackChange();
 }
-function onTrackChange(){renderPlayer();markPlaying();renderRight();renderSidebar();updatePlayIcons();setMediaSession();saveMeta();}
+function onTrackChange(){lyrIdx=-2;renderLyrics();renderPlayer();markPlaying();renderRight();renderSidebar();updatePlayIcons();setMediaSession();saveMeta();}
 function togglePlay(){
   if(!cur()){const ids=listForKey('all');if(ids.length)playList(ids,null,{key:'all',label:'Tất cả bài hát'});else toast('Hãy thêm nhạc trước');return;}
   if(audio.paused){if(!audio.getAttribute('src'))loadCurrent(true);else resume();}else audio.pause();
@@ -929,7 +983,7 @@ function cycleRepeat(){S.repeat=(S.repeat+1)%3;updateModes();renderRight();saveM
 function playNext(id){if(!cur()){playList([id],0,{key:'queue',label:'Hàng chờ'});return;}S.queue.splice(S.qi+1,0,id);renderRight();toast('Sẽ phát tiếp theo');}
 function addQueue(id){if(!cur()){playList([id],0,{key:'queue',label:'Hàng chờ'});return;}S.queue.push(id);renderRight();toast('Đã thêm vào hàng chờ');}
 
-audio.addEventListener('timeupdate',()=>{updateProgress();if(Math.floor(audio.currentTime)%5===0)saveMeta();});
+audio.addEventListener('timeupdate',()=>{updateProgress();updateLyrics();if(Math.floor(audio.currentTime)%5===0)saveMeta();});
 audio.addEventListener('play',()=>{updatePlayIcons();if('mediaSession' in navigator)navigator.mediaSession.playbackState='playing';});
 audio.addEventListener('pause',()=>{updatePlayIcons();saveMeta();if('mediaSession' in navigator)navigator.mediaSession.playbackState='paused';});
 audio.addEventListener('ended',()=>next(true));
@@ -970,10 +1024,116 @@ document.addEventListener('change',e=>{
 });
 ['pointerup','touchend'].forEach(ev=>document.addEventListener(ev,()=>{if(seeking){const r=seeking;setTimeout(()=>{if(seeking===r){r.dispatchEvent(new Event('change',{bubbles:true}))}},50);}},{passive:true}));
 
+/* ================= lyrics ================= */
+let lyrIdx=-2,lyrUserScroll=0;
+function parseLRC(txt){
+  const timed=[],plain=[];let off=0;
+  String(txt||'').split(/\r?\n/).forEach(raw=>{
+    const o=raw.match(/^\s*\[offset:\s*([+-]?\d+)\s*\]/i);if(o){off=+o[1]/1000;return;}
+    const re=/\[(\d{1,3}):(\d{1,2}(?:[.:]\d{1,3})?)\]/g;let ts=[],last=0,x;
+    const lead=raw.match(/^\s*/)[0].length;last=lead;re.lastIndex=lead;
+    while((x=re.exec(raw))&&x.index===last){ts.push(+x[1]*60+parseFloat(x[2].replace(':','.')));last=re.lastIndex;}
+    const text=raw.slice(last).replace(/<\d{1,3}:\d{1,2}(?:\.\d{1,3})?>/g,'').trim();
+    if(ts.length)ts.forEach(t=>timed.push({t:Math.max(0,t-off),text}));
+    else if(/^\s*\[[a-z#]+:.*\]\s*$/i.test(raw))return;
+    else plain.push({t:null,text:raw.trim()});
+  });
+  if(timed.length>=2){timed.sort((a,b)=>a.t-b.t);return {synced:true,lines:timed};}
+  while(plain.length&&!plain[0].text)plain.shift();while(plain.length&&!plain[plain.length-1].text)plain.pop();
+  return {synced:false,lines:plain};
+}
+function lyrOf(t){if(!t||!t.lyrics)return null;if(!t._lyr||t._lyrSrc!==t.lyrics){t._lyr=parseLRC(t.lyrics);t._lyrSrc=t.lyrics;}return t._lyr.lines.length?t._lyr:null;}
+function lyricsOpen(){return S.view.name==='lyrics'||$('#shLyr').classList.contains('open');}
+function lyricsHTML(){
+  const t=cur();
+  if(!t)return `<div class="lyr"><div class="lyr-empty">${ic('mic',44)}<h2>Chưa có bài nào đang phát</h2><p>Chọn một bài hát để xem lời.</p></div></div>`;
+  const top=`<div class="lyr-top">${coverHTML(t,'')}<div class="tt"><div class="t1">${esc(t.title)}</div><div class="t2" style="color:rgba(255,255,255,.75)">${esc(t.artist)}</div></div></div>`;
+  const L=lyrOf(t);
+  if(!L){
+    if(t._lyrState==='loading')return `<div class="lyr">${top}<div class="lyr-empty">${ic('search',40)}<h2>Đang tìm lời…</h2></div></div>`;
+    return `<div class="lyr">${top}<div class="lyr-empty">${ic('mic',44)}<h2>Chưa có lời cho bài này</h2><p>${t._lyrState==='none'?'Không tìm thấy lời trên mạng. Hãy kiểm tra tên bài và nghệ sĩ (Sửa thông tin bài hát), hoặc tự thêm lời.':t._lyrState==='error'?'Không kết nối được tới kho lời bài hát. Kiểm tra mạng rồi thử lại, hoặc tự thêm lời.':'Tìm lời trên mạng, hoặc tự thêm bằng file .lrc hay dán lời vào.'}</p><div class="btns"><button class="pill solid" data-act="lyr-find">${ic('search',16)}Tìm trên mạng</button><button class="pill" data-act="lyr-file">${ic('upload',16)}Chọn file .lrc</button><button class="pill" data-act="lyr-edit">${ic('edit',16)}Dán lời</button></div></div></div>`;
+  }
+  const lines=L.lines.map((l,i)=>L.synced?`<p class="ll" data-i="${i}" data-act="lyr-seek" data-t="${l.t}">${l.text?esc(l.text):'♪'}</p>`:`<p class="ll plain">${l.text?esc(l.text):'&nbsp;'}</p>`).join('');
+  return `<div class="lyr">${top}${lines}<div class="lyr-foot">${L.synced?'':'<span>Lời này không có mốc thời gian nên không tự chạy theo nhạc.</span>'}<button class="pill" data-act="lyr-edit">${ic('edit',14)}Sửa lời</button><button class="pill" data-act="lyr-find">${ic('search',14)}Tìm lại trên mạng</button></div></div>`;
+}
+function renderLyricsView(){const t=cur();view.innerHTML=`<div class="vwrap plain lyrv" style="background:${t?trackColor(t):'var(--panel)'}">${topbar('Lời bài hát')}<div class="lyr-host"></div></div>`;lyrIdx=-2;renderLyrics();}
+function renderLyrics(){
+  const t=cur();
+  $('#shLTitle').textContent=t?t.title:'';$('#shLArtist').textContent=t?t.artist:'';
+  if(t)$('#shLyr').style.setProperty('--lc',trackColor(t));
+  if(S.view.name==='lyrics'){const w=$('#view .vwrap');if(w&&t)w.style.background=trackColor(t);}
+  if(!lyricsOpen())return;
+  const html=lyricsHTML();$$('.lyr-host').forEach(h=>{h.innerHTML=html;});
+  lyrIdx=-2;lyrUserScroll=0;
+  $$('.lyr-scroller').forEach(sc=>sc.scrollTop=0);if(S.view.name==='lyrics')main.scrollTop=0;
+  updateLyrics();
+  if(t&&!t.lyrics&&!t._lyrState)fetchLyrics(t,false);
+}
+function updateLyrics(){
+  if(!lyricsOpen())return;const t=cur();const L=lyrOf(t);if(!L||!L.synced)return;
+  const now=(audio.currentTime||0)+0.2;let lo=0,hi=L.lines.length-1,idx=-1;
+  while(lo<=hi){const m=(lo+hi)>>1;if(L.lines[m].t<=now){idx=m;lo=m+1}else hi=m-1;}
+  if(idx===lyrIdx)return;lyrIdx=idx;
+  $$('.lyr-host').forEach(h=>{
+    if(!h.offsetParent)return;
+    let act=null;$$('.ll',h).forEach(el=>{const i=+el.dataset.i;el.classList.toggle('on',i===idx);el.classList.toggle('past',i<idx);if(i===idx)act=el;});
+    if(!act||Date.now()-lyrUserScroll<3500)return;
+    const sc=h.closest('.lyr-scroller')||main;const r=act.getBoundingClientRect(),sr=sc.getBoundingClientRect();
+    const d=r.top-sr.top-sc.clientHeight*0.4+r.height/2;
+    try{sc.scrollBy({top:d,behavior:'smooth'})}catch(e){sc.scrollTop+=d}
+  });
+}
+['wheel','touchmove'].forEach(ev=>document.addEventListener(ev,e=>{if(e.target.closest&&e.target.closest('.lyr-host'))lyrUserScroll=Date.now();},{passive:true}));
+async function saveLyrics(t,text){t.lyrics=text||'';t._lyr=null;t._lyrState=text?'':'manual';await dbPut('tracks',toRec(t));if(cur()===t)renderLyrics();}
+async function fetchLyrics(t,manual){
+  if(!t||t._lyrState==='loading')return;
+  t._lyrState='loading';if(cur()===t)renderLyrics();
+  const known=t.artist&&t.artist!=='Nghệ sĩ không xác định';
+  const first=known?t.artist.split(/\s*(?:\/|;|,|&| x | ft\.? | feat\.? )\s*/i)[0]:'';
+  const title=t.title.replace(/\s*[\(\[][^\)\]]*(official|lyrics?|audio|video|mv|remix)[^\)\]]*[\)\]]/ig,'').trim()||t.title;
+  const urls=[];
+  if(known)urls.push('track_name='+encodeURIComponent(title)+'&artist_name='+encodeURIComponent(first));
+  urls.push('q='+encodeURIComponent(title+(first?' '+first:'')));
+  if(first)urls.push('track_name='+encodeURIComponent(title));
+  let best=null,err=false;
+  for(const u of urls){
+    try{
+      const ctl=new AbortController();const tm=setTimeout(()=>ctl.abort(),12000);
+      const r=await fetch('https://lrclib.net/api/search?'+u,{signal:ctl.signal});clearTimeout(tm);
+      if(!r.ok){err=true;continue;}
+      const arr=await r.json();if(!Array.isArray(arr))continue;
+      const cand=arr.filter(x=>x&&(x.syncedLyrics||x.plainLyrics)).map(x=>{const d=t.duration&&x.duration?Math.abs(x.duration-t.duration):5;return {x,d,score:(x.syncedLyrics?0:40)+d};}).sort((a,b)=>a.score-b.score);
+      if(cand.length){best=cand[0];break;}
+    }catch(e){err=true;}
+  }
+  if(best){
+    const x=best.x;const text=(x.syncedLyrics&&best.d<=8)?x.syncedLyrics:(x.plainLyrics||String(x.syncedLyrics).replace(/\[[^\]]*\]/g,''));
+    await saveLyrics(t,text);if(manual)toast('Đã tìm thấy lời bài hát');
+  }else{t._lyrState=err?'error':'none';if(cur()===t)renderLyrics();if(manual)toast(err?'Không kết nối được tới kho lời bài hát':'Không tìm thấy lời cho bài này');}
+}
+function editLyrics(id){
+  const t=S.tracks.get(id);if(!t)return;
+  modal(`<h3>Lời bài hát</h3><div class="t2" style="margin:-8px 0 12px">${esc(t.title)} · ${esc(t.artist)}</div><textarea id="lyrTa" placeholder="Dán lời vào đây…" spellcheck="false"></textarea><p class="hint">Muốn lời chạy theo nhạc, dán lời dạng LRC, mỗi dòng có mốc thời gian, ví dụ: [00:12.50] Câu hát đầu tiên</p><div class="mbtns">${t.lyrics?'<button class="btn ghost" data-del style="margin-right:auto;color:#ff6b6b">Xóa lời</button>':''}<button class="btn ghost" data-x>Hủy</button><button class="btn pri" data-ok>Lưu</button></div>`,(b,done)=>{
+    const ta=$('#lyrTa',b);ta.value=t.lyrics||'';
+    $('[data-x]',b).onclick=()=>done(null);
+    $('[data-ok]',b).onclick=async()=>{done(true);await saveLyrics(t,ta.value.trim());toast('Đã lưu lời bài hát');};
+    const del=$('[data-del]',b);if(del)del.onclick=async()=>{done(true);await saveLyrics(t,'');toast('Đã xóa lời');};
+  });
+}
+$('#lrcFile').addEventListener('change',async e=>{
+  const f=e.target.files&&e.target.files[0];e.target.value='';const t=cur();if(!f||!t)return;
+  if(f.size>1024*1024||/^(audio|video|image)\//.test(f.type)){toast('File này không phải file lời (.lrc hoặc .txt)');return;}
+  try{const buf=new Uint8Array(await f.arrayBuffer());let txt;
+    if(buf[0]===0xFF&&buf[1]===0xFE)txt=new TextDecoder('utf-16le').decode(buf);else if(buf[0]===0xFE&&buf[1]===0xFF)txt=new TextDecoder('utf-16be').decode(buf);else txt=new TextDecoder('utf-8').decode(buf);
+    txt=txt.replace(/^\uFEFF/,'').trim();if(!txt){toast('File lời trống');return;}
+    await saveLyrics(t,txt);toast('Đã thêm lời bài hát');
+  }catch(err){toast('Không đọc được file này');}
+});
+
 /* ================= sheet (mobile now playing) ================= */
 const sheet=$('#sheet');
 function openSheet(){if(!cur())return;sheet.classList.add('open');}
-function closeSheet(){sheet.classList.remove('open');$('#shQueue').classList.remove('open');}
+function closeSheet(){sheet.classList.remove('open');$('#shQueue').classList.remove('open');$('#shLyr').classList.remove('open');}
 (function(){
   let y0=null,dy=0;
   const start=e=>{if(e.target.closest('.range,button'))return;y0=e.touches[0].clientY;dy=0;sheet.classList.add('dragging');};
@@ -1001,7 +1161,8 @@ function trackMenu(id,anchor){
     {icon:lk?'heartFill':'heart',label:lk?'Xóa khỏi Bài hát đã thích':'Thêm vào Bài hát đã thích',act:()=>toggleLike(id)},
     {icon:'person',label:'Đi tới nghệ sĩ',act:()=>go({name:'artist',id:t.artist})},
     {sep:1},
-    {icon:'edit',label:'Sửa thông tin bài hát',act:()=>editTrack(id)}
+    {icon:'edit',label:'Sửa thông tin bài hát',act:()=>editTrack(id)},
+    {icon:'mic',label:t.lyrics?'Sửa lời bài hát':'Thêm lời bài hát',act:()=>editLyrics(id)}
   ];
   if(key.startsWith('pl:')&&anchor&&anchor.closest&&anchor.closest('.row'))items.push({icon:'minus',label:'Xóa khỏi danh sách phát này',act:()=>{const p=plById(key.slice(3));if(p){p.ids=p.ids.filter(x=>x!==id);saveMeta();renderAll();toast('Đã xóa khỏi danh sách phát');}}});
   items.push({icon:'trash',label:'Xóa khỏi thư viện',danger:1,act:async()=>{if(await confirmBox('Xóa bài hát?',`“${t.title}” sẽ bị xóa khỏi thư viện và mọi danh sách phát.`,'Xóa'))deleteTrack(id);}});
@@ -1080,6 +1241,14 @@ document.addEventListener('click',e=>{
     case 'close-sheet':closeSheet();break;
     case 'sheet-queue':$('#shQList').innerHTML=queueHTML();$('#shQueue').classList.add('open');break;
     case 'sheet-queue-close':$('#shQueue').classList.remove('open');break;
+    case 'lyrics':if(S.view.name==='lyrics')back();else go({name:'lyrics'});updateModes();break;
+    case 'sheet-lyrics':$('#shLyr').classList.add('open');lyrIdx=-2;renderLyrics();break;
+    case 'sheet-lyrics-close':$('#shLyr').classList.remove('open');break;
+    case 'lyr-seek':{const t=parseFloat(el.dataset.t);if(isFinite(t)&&cur()){lyrUserScroll=0;if(audio.readyState>0)audio.currentTime=t;else pendingSeek=t;if(audio.paused)togglePlay();}break;}
+    case 'lyr-find':if(cur())fetchLyrics(cur(),true);break;
+    case 'lyr-file':try{$('#lrcFile').click()}catch(e){}break;
+    case 'lyr-edit':if(cur())editLyrics(cur().id);break;
+    case 'lyr-menu':if(cur()){const t=cur();openMenu([{icon:'search',label:'Tìm lời trên mạng',act:()=>fetchLyrics(t,true)},{icon:'upload',label:'Chọn file .lrc',act:()=>{try{$('#lrcFile').click()}catch(e){}}},{icon:'edit',label:t.lyrics?'Sửa lời':'Dán lời',act:()=>editLyrics(t.id)}],el);}break;
     case 'close-menu':closeMenu();break;
   }
 });
