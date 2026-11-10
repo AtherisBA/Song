@@ -383,7 +383,7 @@ body.is-paused .eq i{animation-play-state:paused}
         <button class="ibtn sm" data-act="lib-plus" title="Tạo hoặc thêm" id="slPlus"></button>
       </div>
       <div class="sl-chips"><button class="chip" data-act="add-music" id="chipAdd"></button><button class="chip" data-act="new-pl" id="chipPl"></button></div>
-      <div class="sl-list" id="libList"></div>
+      <div class="sl-list" id="libList"></div><div class="muted" style="font-size:11px;padding:0 16px 10px">Phiên bản 1.2</div>
     </div>
   </aside>
   <main id="main"><div id="view"></div></main>
@@ -819,7 +819,7 @@ function renderLibrary(){
   const ar=artists();
   view.innerHTML=`<div class="vwrap plain"><div class="topbar" style="justify-content:space-between"><h2>Thư viện</h2><button class="ibtn" data-act="lib-plus" aria-label="Thêm">${ic('plus',26)}</button></div>
   <div class="sl-chips" style="padding:0 16px 10px"><button class="chip" data-act="add-music">${ic('upload',14)}Thêm nhạc</button><button class="chip" data-act="new-pl">${ic('plus',14)}Danh sách phát</button></div>
-  <div style="padding:0 8px">${libItems().map(libRowHTML).join('')}${ar.map(a=>libRowHTML({key:'ar:'+a,title:a,sub:'Nghệ sĩ'})).join('')}</div></div>`;
+  <div style="padding:0 8px">${libItems().map(libRowHTML).join('')}${ar.map(a=>libRowHTML({key:'ar:'+a,title:a,sub:'Nghệ sĩ'})).join('')}</div><p class="muted" style="text-align:center;font-size:12px;padding:20px 0 0">Sóng · phiên bản 1.2</p></div>`;
 }
 function renderQueueView(){view.innerHTML=`<div class="vwrap plain">${topbar('Hàng chờ')}<div id="qv">${queueHTML()}</div></div>`;}
 function qItem(t,qi,now){return `<div class="qi ${now?'now':''}" data-act="jump" data-qi="${qi}">${coverHTML(t,'cov-q')}<div class="tt"><div class="t1">${esc(t.title)}</div><div class="t2">${esc(t.artist)}</div></div>${now?'':`<button class="ibtn sm" data-act="q-remove" data-qi="${qi}" aria-label="Bỏ khỏi hàng chờ">${ic('x',16)}</button>`}</div>`;}
@@ -937,12 +937,15 @@ function setMediaSession(){
   set(null);
   if(t.cover){if(t._art)set(t._art);else{const fr=new FileReader();fr.onload=()=>{t._art=fr.result;if(cur()===t)set(t._art)};fr.readAsDataURL(t.cover);}}
 }
-if('mediaSession' in navigator){
+function bindMS(){
+  if(!('mediaSession' in navigator))return;
   const h=(a,f)=>{try{navigator.mediaSession.setActionHandler(a,f)}catch(e){}};
-  h('play',()=>audio.play().catch(()=>{}));h('pause',()=>audio.pause());h('previoustrack',prev);h('nexttrack',()=>next(false));
-  h('seekto',e=>{if(e.seekTime!=null)audio.currentTime=e.seekTime;});
   h('seekbackward',null);h('seekforward',null);
+  h('play',()=>audio.play().catch(()=>{}));h('pause',()=>audio.pause());
+  h('previoustrack',prev);h('nexttrack',()=>next(false));
+  h('seekto',e=>{if(e.seekTime!=null)audio.currentTime=e.seekTime;});
 }
+bindMS();audio.addEventListener('playing',bindMS);
 
 /* seek + volume */
 document.addEventListener('input',e=>{
