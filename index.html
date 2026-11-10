@@ -941,8 +941,7 @@ if('mediaSession' in navigator){
   const h=(a,f)=>{try{navigator.mediaSession.setActionHandler(a,f)}catch(e){}};
   h('play',()=>audio.play().catch(()=>{}));h('pause',()=>audio.pause());h('previoustrack',prev);h('nexttrack',()=>next(false));
   h('seekto',e=>{if(e.seekTime!=null)audio.currentTime=e.seekTime;});
-  h('seekbackward',e=>audio.currentTime=Math.max(0,audio.currentTime-(e.seekOffset||10)));
-  h('seekforward',e=>audio.currentTime=Math.min(audio.duration||0,audio.currentTime+(e.seekOffset||10)));
+  h('seekbackward',null);h('seekforward',null);
 }
 
 /* seek + volume */
