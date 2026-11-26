@@ -33,10 +33,14 @@
 <body>
   <img src="icon-192.png" alt="">
   <h1>Đang bật chế độ lái xe…</h1>
-  <p>Quy trình trên máy sẽ tự mở Google Maps và Sóng. Nếu không thấy, bấm nút bên dưới.</p>
+  <p>Đang mở Google Maps và Sóng. Nếu không thấy, bấm nút bên dưới.</p>
   <div class="row">
     <a class="btn primary" href="intent://maps.google.com/maps#Intent;scheme=https;package=com.google.android.apps.maps;end">Mở Google Maps</a>
     <a class="btn" href="../index.html">Mở Sóng</a>
   </div>
+<script>
+  var MAPS = "intent://maps.google.com/maps#Intent;scheme=https;package=com.google.android.apps.maps;end";
+  setTimeout(function () { location.href = MAPS; }, 300);
+</script>
 </body>
 </html>
