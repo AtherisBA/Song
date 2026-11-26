@@ -1,29 +1,17 @@
 {
   "id": "./",
-  "name": "Sóng – Nghe nhạc MP3",
-  "short_name": "Sóng",
-  "description": "Trình phát nhạc MP3 cá nhân",
+  "name": "Chế độ lái xe",
+  "short_name": "Chế độ lái xe",
+  "description": "Công tắc mở Google Maps và Sóng chia đôi màn hình trên xe",
   "start_url": "./",
   "scope": "./",
   "display": "standalone",
-  "orientation": "any",
-  "background_color": "#000000",
-  "theme_color": "#000000",
+  "orientation": "landscape",
+  "background_color": "#0d1117",
+  "theme_color": "#0d1117",
   "lang": "vi",
-  "categories": [
-    "music",
-    "entertainment"
-  ],
   "icons": [
-    {
-      "src": "icon-192.png",
-      "sizes": "192x192",
-      "type": "image/png"
-    },
-    {
-      "src": "icon-512.png",
-      "sizes": "512x512",
-      "type": "image/png"
-    }
+    {"src": "icon-192.png", "sizes": "192x192", "type": "image/png"},
+    {"src": "icon-512.png", "sizes": "512x512", "type": "image/png"}
   ]
 }
