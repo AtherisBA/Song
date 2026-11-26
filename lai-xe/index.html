@@ -1,0 +1,42 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="theme-color" content="#0d1117">
+<title>Chế độ lái xe</title>
+<link rel="manifest" href="manifest.webmanifest">
+<link rel="icon" href="icon-192.png">
+<style>
+  :root { color-scheme: dark; }
+  * { box-sizing: border-box; margin: 0; }
+  body {
+    min-height: 100vh; display: flex; flex-direction: column;
+    align-items: center; justify-content: center; gap: 28px;
+    background: #0d1117; color: #e6edf3;
+    font-family: system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
+    padding: 24px; text-align: center;
+  }
+  img { width: 96px; height: 96px; }
+  h1 { font-size: 28px; font-weight: 600; }
+  p { color: #8b949e; font-size: 16px; }
+  .row { display: flex; gap: 16px; flex-wrap: wrap; justify-content: center; }
+  a.btn {
+    display: inline-flex; align-items: center; justify-content: center;
+    min-width: 220px; min-height: 72px; padding: 0 28px; border-radius: 16px;
+    font-size: 20px; font-weight: 600; text-decoration: none;
+    background: #21262d; color: #e6edf3; border: 1px solid #30363d;
+  }
+  a.btn.primary { background: #ffbe28; color: #0d1117; border-color: #ffbe28; }
+</style>
+</head>
+<body>
+  <img src="icon-192.png" alt="">
+  <h1>Đang bật chế độ lái xe…</h1>
+  <p>Quy trình trên máy sẽ tự mở Google Maps và Sóng. Nếu không thấy, bấm nút bên dưới.</p>
+  <div class="row">
+    <a class="btn primary" href="intent://maps.google.com/maps#Intent;scheme=https;package=com.google.android.apps.maps;end">Mở Google Maps</a>
+    <a class="btn" href="../">Mở Sóng</a>
+  </div>
+</body>
+</html>
